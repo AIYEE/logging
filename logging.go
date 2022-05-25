@@ -51,8 +51,9 @@ func NewLogger(opts ...Option) (Logger, error) {
 	for _, o := range opts {
 		o(params)
 	}
-
-	params.createFileWriter()
+	if params.LogFile != "" {
+		params.createFileWriter()
+	}
 
 	return params.newLogger()
 }
