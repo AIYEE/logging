@@ -4,15 +4,17 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"time"
 
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"github.com/sirupsen/logrus"
 )
 
 const (
-	defaultMaxFiles  uint   = 10
-	defaultRotatSize int64  = 5 * 1024 * 1024
-	defaultVerbosity string = "info"
+	defaultMaxFiles  uint          = 10
+	defaultRotatSize int64         = 5 * 1024 * 1024
+	defaultMaxAge    time.Duration = 30 * 24 * time.Hour
+	defaultVerbosity string        = "info"
 )
 
 type LoggerParam struct {
@@ -20,6 +22,7 @@ type LoggerParam struct {
 	Writer    io.Writer
 	MaxFiles  uint
 	RotatSize int64
+	MaxAge    time.Duration
 	Verbosity string
 }
 
@@ -114,6 +117,18 @@ func WithRotatSize(size int64) Option {
 	}
 }
 
+// in days measured
+func WithMaxAge(maxAge int64) Option {
+	return func(l *LoggerParam) {
+		if maxAge != 0 {
+			l.MaxAge = time.Duration(maxAge) * 24 * time.Hour
+		} else {
+			l.MaxAge = defaultMaxAge
+		}
+
+	}
+}
+
 func WithVerbosity(verbosity string) Option {
 	return func(l *LoggerParam) {
 		if verbosity != "" {
@@ -151,6 +166,7 @@ func defaultLoggerParam() *LoggerParam {
 		Writer:    os.Stdout,
 		MaxFiles:  defaultMaxFiles,
 		RotatSize: defaultRotatSize,
+		MaxAge:    defaultMaxAge,
 		Verbosity: defaultVerbosity,
 	}
 }
