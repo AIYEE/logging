@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
+	"runtime"
 	"time"
 
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
@@ -65,10 +67,16 @@ func New(w io.Writer, level logrus.Level) Logger {
 	l := logrus.New()
 	l.SetOutput(w)
 	l.SetLevel(level)
+	l.SetReportCaller(true)
 	l.Formatter = &logrus.TextFormatter{
 		FullTimestamp: true,
+		CallerPrettyfier: func(f *runtime.Frame) (function string, file string) {
+			function = fmt.Sprintf("%s()", filepath.Base(f.Function))
+			file = fmt.Sprintf("%s:%d", filepath.Base(f.File), f.Line)
+			return
+		},
 	}
-	l.AddHook(&CallerHook{})
+	// l.AddHook(&CallerHook{})
 
 	return &logger{
 		Logger: l,
