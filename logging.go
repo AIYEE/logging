@@ -65,6 +65,7 @@ func New(w io.Writer, level logrus.Level) Logger {
 	l.Formatter = &logrus.TextFormatter{
 		FullTimestamp: true,
 	}
+	l.AddHook(&CallerHook{})
 
 	return &logger{
 		Logger: l,
