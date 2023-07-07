@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"time"
 
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
@@ -140,7 +141,7 @@ func WithMaxAge(maxAge int64) Option {
 func WithVerbosity(verbosity string) Option {
 	return func(l *LoggerParam) {
 		if verbosity != "" {
-			l.Verbosity = verbosity
+			l.Verbosity = strings.ToLower(verbosity)
 		} else {
 			l.Verbosity = defaultVerbosity
 		}
