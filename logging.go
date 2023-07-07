@@ -16,7 +16,7 @@ import (
 const (
 	defaultMaxFiles  uint          = 10
 	defaultRotatSize int64         = 5 * 1024 * 1024
-	defaultMaxAge    time.Duration = 30 * 24 * time.Hour
+	defaultMaxAge    time.Duration = 0
 	defaultVerbosity string        = "info"
 )
 
@@ -58,7 +58,9 @@ func NewLogger(opts ...Option) (Logger, error) {
 		o(params)
 	}
 	if params.LogFile != "" {
-		params.createFileWriter()
+		if err := params.createFileWriter(); err != nil {
+			return nil, err
+		}
 	}
 
 	return params.newLogger()
@@ -180,12 +182,15 @@ func defaultLoggerParam() *LoggerParam {
 	}
 }
 
-func (l *LoggerParam) createFileWriter() {
-	l.Writer, _ = rotatelogs.New(
+// options MaxAge and RotationCount cannot be both set
+func (l *LoggerParam) createFileWriter() error {
+	var err error
+	l.Writer, err = rotatelogs.New(
 		l.LogFile+".%Y-%m-%d-%H-%M",
 		rotatelogs.WithLinkName(l.LogFile),
 		rotatelogs.WithRotationCount(l.MaxFiles),
 		rotatelogs.WithRotationSize(l.RotatSize),
 		rotatelogs.WithMaxAge(l.MaxAge),
 	)
+	return err
 }
