@@ -186,5 +186,6 @@ func (l *LoggerParam) createFileWriter() {
 		rotatelogs.WithLinkName(l.LogFile),
 		rotatelogs.WithRotationCount(l.MaxFiles),
 		rotatelogs.WithRotationSize(l.RotatSize),
+		rotatelogs.WithMaxAge(l.MaxAge),
 	)
 }
