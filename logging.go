@@ -46,6 +46,7 @@ type Logger interface {
 	WithFields(fields logrus.Fields) *logrus.Entry
 	WriterLevel(logrus.Level) *io.PipeWriter
 	NewEntry() *logrus.Entry
+	Close()
 }
 
 type logger struct {
@@ -88,6 +89,12 @@ func New(w io.Writer, level logrus.Level) Logger {
 
 func (l *logger) NewEntry() *logrus.Entry {
 	return logrus.NewEntry(l.Logger)
+}
+
+func (l *logger) Close() {
+	if l.Out != nil {
+		l.Out.(*rotatelogs.RotateLogs).Close()
+	}
 }
 
 func WithLogFile(file string) Option {
